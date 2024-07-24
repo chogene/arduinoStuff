@@ -1,0 +1,35 @@
+import time
+import serial
+from vpython import *
+import numpy as np
+
+arrowLength = 1
+arrowWidth = .002
+myArrow = arrow(Length=arrowLength, shaftWidth=arrowWidth,
+                color=color.red, axis=vector(1, 1, 0))
+
+arduinoData = serial.Serial('COM3', 115200)
+time.sleep(1)
+
+while True:
+    while arduinoData.inWaiting() == 0:  # while arduinoData is receiving nothing, pass
+        pass
+
+    dataPacket = arduinoData.readline()
+    dataPacket = str(dataPacket, 'utf-8')  # makes into data we can understand in python
+    dataPacket = int(dataPacket.strip('\r\n'))
+    theta = (-2 * np.pi / 3069) * dataPacket + 5 * np.pi / 6
+
+    myArrow.axis = vector(arrowLength * np.cos(theta),
+                          arrowLength * np.sin(theta), 0)
+
+    #for theta in np.linspace(5 * np.pi / 6, np.pi / 6, 100):
+    #    rate(10)
+    #    myArrow.axis = vector(arrowLength * np.cos(theta),
+    #                          arrowLength * np.sin(theta), 0)
+    #for theta in np.linspace(np.pi / 6, 5 * np.pi / 6, 150):
+    #    rate(10)
+    #    myArrow.axis = vector(arrowLength * np.cos(theta),
+    #                          arrowLength * np.sin(theta), 0)
+
+    #print(dataPacket)
